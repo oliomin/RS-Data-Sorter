@@ -109,13 +109,15 @@ if __name__ == "__main__":
             sys.exit()
     shutil.copy(EXCEL, f"{EXCEL}.bkp")
 
+    if GROUND_DATA_CSV:
+        _ground_dict = {}
+        for _ in csv_yield(GROUND_DATA_CSV):
+            _ground_dict[_[0]] = [*_[1:]]
+
     for file in iterate_files(sanitize_dir_input(DIR)):
         print("Processing file....", file.name)
         ground_data: list[str] | None = []
         if GROUND_DATA_CSV:
-            _ground_dict = {}
-            for _ in csv_yield(GROUND_DATA_CSV):
-                _ground_dict[_[0]] = [*_[1:]]
             ground_data = _ground_dict.get(parse_datetime_from_filename(file.name))
         elif not IGNORE_GROUND_DATA:
             try:
