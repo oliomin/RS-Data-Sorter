@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from io import StringIO
 from argparse import ArgumentParser
 from climatexl import build_climate_sheet
@@ -57,7 +58,7 @@ def selectively_round_off(ds):
 	def _r(x):
 		try:
 			return np.round(x)
-		except:
+		except TypeError:
 			return x
 
 	_gpm = _r(ds.loc['Geo(gpm)'])
