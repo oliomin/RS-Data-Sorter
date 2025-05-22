@@ -14,7 +14,7 @@ def _ascentime(ascentime :str|None = None) -> datetime:
             return _.replace(hour = 12, minute = 0)
 
 
-def build_climate_sheet(filename :str, levels :list[int], df :pd.DataFrame, ascentime :str|datetime|None = None):
+def build_climate_sheet(filename :str, levels :list[int], df :pd.DataFrame, ascentime :str|datetime|None = None, ground_data :list[float|str]|None = None):
     wb = load_workbook(filename)
     wb.save(filename + '.bkp')
 
@@ -45,6 +45,13 @@ def build_climate_sheet(filename :str, levels :list[int], df :pd.DataFrame, asce
         row.offset(column = col_offsets[4]).value = _[4]
     else:
         wb.active = wb['Surface']
+        _ = ground_data
+        row = wb['Surface']['B5'].offset(row_offset)
+        row.offset(column = col_offsets[0]).value = _[0]
+        row.offset(column = col_offsets[1]).value = _[1]
+        row.offset(column = col_offsets[2]).value = _[2]
+        row.offset(column = col_offsets[3]).value = _[3]
+        row.offset(column = col_offsets[4]).value = _[4]
 
     wb.save(filename)
 
