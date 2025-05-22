@@ -14,9 +14,10 @@ def _ascentime(ascentime :str|None = None) -> datetime:
             return _.replace(hour = 12, minute = 0)
 
 
-def build_climate_sheet(filename :str, levels :list[int], df :pd.DataFrame, ascentime :str|datetime|None = None, ground_data :list[float|str]|None = None):
+def build_climate_sheet(filename :str, levels :list[int], df :pd.DataFrame, ascentime :str|datetime|None = None, ground_data :list[float|str]|None = None, backup = True):
     wb = load_workbook(filename)
-    wb.save(filename + '.bkp')
+    if backup:
+        wb.save(filename + '.bkp')
 
     if ascentime is None:
         print(f"No default datetime set! Continue with {_ascentime().strftime('%Y%m%d%H%M')}? (default: Y)")
