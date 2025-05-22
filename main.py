@@ -9,10 +9,14 @@ parser = ArgumentParser()
 parser.add_argument('filename', help = "path of the integration file.")
 parser.add_argument('-xl', help = "path of the excel file.")
 parser.add_argument('-datetime', help = "datetime in YYYYMMDDHHmm format.")
+parser.add_argument('--ignore-ground-data', action = 'store_true', help = "Ignore surface data")
+parser.add_argument('--feed-ground-one-by-one', action = 'store_true', help = "Feed surface data one by one")
 
 FILENAME = parser.parse_args().filename
 EXCEL    = parser.parse_args().xl
 DATETIME = parser.parse_args().datetime
+IGNORE_GROUND_DATA = parser.parse_args().ignore_ground_data
+FEDDING_GROUND_ONE_BY_ONE = parser.parse_args().feed_ground_one_by_one
 
 def open_file(filename):
 	data_store = dict()
@@ -47,8 +51,25 @@ _levels = [_ for _ in _levels if _ >= min(_df.index)]
 _df  = (_df
 		.loc[_levels, (_df.columns[_] for _ in (0, 2, 3, 6, 7))]
 		.sort_index(ascending = False)
-		.astype({'Geo(gpm)': 'int32', 'Wdir(D)': 'int32'}) # Needless, because the round off is anyway getting lost on transposition
 		)
+
+def selectively_round_off(ds):
+	def _r(x):
+		try:
+			return np.round(x)
+		except:
+			return x
+
+	_gpm = _r(ds.loc['Geo(gpm)'])
+	_dir = _r(ds.loc['Wdir(D)'])
+	return pd.Series(data = [_gpm,
+								ds.loc['T(C)'],
+								ds.loc['Dew(C)'],
+								_dir,
+								ds.loc['Wspd(m/s)']],
+						index = ds.index)
+
+_df = _df.apply(selectively_round_off, axis=1)
 
 _df = _df.transpose()
 
@@ -100,6 +121,41 @@ if not EXCEL:
 	if input().upper() != 'N':
 		EXCEL = glob('*.xlsx')[0]
 	else:
-		sys.exit
+		sys.exit()
 
-build_climate_sheet(EXCEL, _levels, _df, DATETIME)
+if not IGNORE_GROUND_DATA:
+	print('Continue with inserting surface data? (default: Y)')
+	if not input().upper() == 'N':
+		if  not FEDDING_GROUND_ONE_BY_ONE:
+			while True:
+				print("Enter space separated values. example: 1013.2 25.5 24.5 180 2.2")
+				ground_data = input().split()
+				if not len(ground_data) == 5:
+					print("Entered data is not 5 values. Try again!")
+					continue
+				else:
+					break
+		else:
+			ground_data =[]
+			while True:
+				print("Enter surface pressure:")
+				ground_data.append(input())
+				print("Temperature:")
+				ground_data.append(input())
+				print("Dew Point:")
+				ground_data.append(input())
+				print("Wind Direction:")
+				ground_data.append(input())
+				print("Wind Speed:")
+				ground_data.append(input())
+				print(f"Continue with {ground_data}? (default: Y)")
+				if input().upper() == 'N':
+					ground_data.clear()
+					continue
+				else:
+					break
+
+
+		build_climate_sheet(EXCEL, _levels, _df, DATETIME, ground_data)
+else:
+	build_climate_sheet(EXCEL, _levels, _df, DATETIME)
