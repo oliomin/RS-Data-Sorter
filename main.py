@@ -26,7 +26,7 @@ IGNORE_GROUND_DATA = parser.parse_args().ignore_ground_data
 FEDDING_GROUND_ONE_BY_ONE = parser.parse_args().feed_ground_one_by_one
 
 
-def open_file(filename):
+def open_file(filename: str) -> dict[str, str]:
     data_store = dict()
     with open(filename) as file:
         for line in file:
@@ -62,7 +62,7 @@ _df = _df.loc[_levels, (_df.columns[_] for _ in (0, 2, 3, 6, 7))].sort_index(
 )
 
 
-def selectively_round_off(ds):
+def selectively_round_off(ds: pd.Series) -> pd.Series:
     def _r(x):
         try:
             return np.round(x)

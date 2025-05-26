@@ -2,6 +2,9 @@ from openpyxl import load_workbook
 import pandas as pd
 from datetime import datetime
 import sys
+from typing import TypeAlias
+
+type GroundData = list[float]|list[str]|list[float|str]|None
 
 def _ascentime(ascentime :str|None = None) -> datetime:
     if ascentime:
@@ -14,7 +17,7 @@ def _ascentime(ascentime :str|None = None) -> datetime:
             return _.replace(hour = 12, minute = 0)
 
 
-def build_climate_sheet(filename :str, levels :list[int], df :pd.DataFrame, ascentime :str|datetime|None = None, ground_data :list[float|str]|None = None, backup = True):
+def build_climate_sheet(filename :str, levels :list[int], df :pd.DataFrame, ascentime :str|datetime|None = None, ground_data :GroundData = None, backup = True):
     wb = load_workbook(filename)
     if backup:
         wb.save(filename + '.bkp')
