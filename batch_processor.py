@@ -156,7 +156,7 @@ if __name__ == "__main__":
                             else:
                                 break
             except KeyboardInterrupt:
-                print("Exitting...Bye! o(*￣▽￣*)ブ")
+                print("Exiting...Bye! o(*￣▽￣*)ブ")
                 sys.exit(1)
 
         postprocess(file, EXCEL, parse_datetime_from_filename(file.name), ground_data)
@@ -164,5 +164,5 @@ if __name__ == "__main__":
             ground_data.clear()
 
     else:
-        print("\nProcessing complete. Exitting...")
+        print("\nProcessing complete. Exiting...")
         print("(❁´◡`❁) Bye Bye.")
