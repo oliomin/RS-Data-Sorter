@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from glob import glob
 from pathlib import Path
 from zipfile import ZipFile
+from typing import Generator
 
 from utils import csv_yield, postprocess
 
@@ -37,7 +38,7 @@ GROUND_DATA_CSV = parser.parse_args().ground_data_csv_path
 GENERATE_TEMPLATE_CSV_FILE = parser.parse_args().generate_template_csv_file
 
 
-def sanitize_dir_input(dir: str):
+def sanitize_dir_input(dir: str) -> Path | ZipFile:
     _ = None
     if dir.endswith(".zip"):
         _ = ZipFile(dir)
@@ -50,7 +51,8 @@ def sanitize_dir_input(dir: str):
     return _
 
 
-def iterate_files(path: Path | ZipFile):
+def iterate_files(path: Path | ZipFile) -> Generator[Path, None, None]:
+    file: str|Path
     if isinstance(path, ZipFile):
         for file in path.namelist():
             if file.endswith(".txt"):
@@ -71,34 +73,40 @@ if __name__ == "__main__":
         if not DIR:
             print(
                 """No directory provided. Enter the path to the directory or the zip
-                     file containing the integration files. (default: current directory)"""
+                file containing the integration files. (default: current directory)"""
             )
-            if _ := input():
+
+            if (_ := input()) != "":
                 DIR = _
             else:
-                DIR = Path(".")
+                DIR = "."
+
         datetimes = []
         for file in iterate_files(sanitize_dir_input(DIR)):
             datetimes.append(parse_datetime_from_filename(file.name))
+        
         print(f"Creating template csv file for {len(datetimes)} files.")
-        with open("ground_data_template.csv", "w") as file:
-            file.write(
+        
+        with open("ground_data_template.csv", "w") as template_file:
+            template_file.write(
                 "Datetime,Surface Pressure,Temperature,Dew Point,Wind Direction,Wind Speed\n"
             )
             for datetime in datetimes:
-                file.write(f"{datetime},,,,,\n")
+                template_file.write(f"{datetime},,,,,\n")
         print("Template csv file created.")
         sys.exit(0)
 
     if not DIR:
-        print(
-            """No directory provided. Enter the path to the directory or the zip
-                 file containing the integration files. (default: current directory)"""
-        )
-        if _ := input():
-            DIR = _
-        else:
-            DIR = Path(".")
+        if not DIR:
+            print(
+                """No directory provided. Enter the path to the directory or the zip
+                file containing the integration files. (default: current directory)"""
+            )
+
+            if (_ := input()) != "":
+                DIR = _
+            else:
+                DIR = "."
 
     if not EXCEL:
         EXCEL = glob("*.xlsx")[0]
