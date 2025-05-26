@@ -17,7 +17,7 @@ def _ascentime(ascentime :str|None = None) -> datetime:
             return _.replace(hour = 12, minute = 0)
 
 
-def build_climate_sheet(filename :str, levels :list[int], df :pd.DataFrame, ascentime :str|datetime|None = None, ground_data :GroundData = None, backup = True):
+def build_climate_sheet(filename :str, levels :list[int], df :pd.DataFrame, ascentime :str|datetime|None = None, ground_data :GroundData = None, backup :bool = True):
     wb = load_workbook(filename)
     if backup:
         wb.save(filename + '.bkp')
