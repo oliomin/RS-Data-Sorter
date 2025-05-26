@@ -3,8 +3,8 @@ import sys
 from argparse import ArgumentParser
 from glob import glob
 from pathlib import Path
-from zipfile import ZipFile
 from typing import Generator
+from zipfile import ZipFile
 
 from utils import csv_yield, postprocess
 
@@ -52,7 +52,7 @@ def sanitize_dir_input(dir: str) -> Path | ZipFile:
 
 
 def iterate_files(path: Path | ZipFile) -> Generator[Path, None, None]:
-    file: str|Path
+    file: str | Path
     if isinstance(path, ZipFile):
         for file in path.namelist():
             if file.endswith(".txt"):
@@ -84,9 +84,9 @@ if __name__ == "__main__":
         datetimes = []
         for file in iterate_files(sanitize_dir_input(DIR)):
             datetimes.append(parse_datetime_from_filename(file.name))
-        
+
         print(f"Creating template csv file for {len(datetimes)} files.")
-        
+
         with open("ground_data_template.csv", "w") as template_file:
             template_file.write(
                 "Datetime,Surface Pressure,Temperature,Dew Point,Wind Direction,Wind Speed\n"
